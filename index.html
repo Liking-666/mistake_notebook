@@ -3,10 +3,109 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#245b4f" />
+    <meta name="theme-color" content="#24292f" />
     <title>考研智能错题本</title>
     <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="stylesheet" href="./styles.css" />
+    <style>
+      :root {
+        --bg: #f4f5f7;
+        --surface: #ffffff;
+        --surface-2: #f0f2f5;
+        --ink: #1f2328;
+        --muted: #6b7280;
+        --line: #d9dee7;
+        --primary: #24292f;
+        --warn: #b42318;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-width: 320px;
+        min-height: 100vh;
+        color: var(--ink);
+        background: var(--bg);
+        font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      }
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+      }
+      .app {
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr);
+        min-height: 100vh;
+      }
+      .sidebar {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        padding: 24px 18px;
+        border-right: 1px solid var(--line);
+        background: var(--surface);
+      }
+      .content {
+        width: min(1120px, 100%);
+        padding: 28px 24px 92px;
+      }
+      .view {
+        display: none;
+      }
+      .view.active {
+        display: block;
+      }
+      .panel,
+      .metric-card,
+      .mistake-card,
+      .rank-item,
+      .mini-item {
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: var(--surface);
+      }
+      .panel {
+        padding: 18px;
+      }
+      .nav-item.active,
+      .primary-button {
+        color: #fff;
+        background: var(--primary);
+      }
+      .bottom-nav {
+        display: none;
+      }
+      @media (max-width: 920px) {
+        .app {
+          display: block;
+        }
+        .sidebar {
+          display: none;
+        }
+        .content {
+          padding: 20px 14px 86px;
+        }
+        .bottom-nav {
+          position: fixed;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          z-index: 10;
+          display: grid;
+          grid-template-columns: repeat(6, 1fr);
+          gap: 6px;
+          padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+          border-top: 1px solid var(--line);
+          background: rgba(255, 255, 255, 0.96);
+        }
+      }
+    </style>
+    <link rel="stylesheet" href="./styles.css?v=20260501" />
   </head>
   <body>
     <div class="app">
@@ -251,6 +350,6 @@
       <button class="nav-item" data-view="chat">答疑</button>
     </nav>
 
-    <script src="./app.js"></script>
+    <script src="./app.js?v=20260501"></script>
   </body>
 </html>

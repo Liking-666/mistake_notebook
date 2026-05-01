@@ -4,7 +4,7 @@
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f5f2ea",
-  "theme_color": "#245b4f",
+  "theme_color": "#24292f",
   "description": "移动端优先的考研错题记录、复习和统计工具。",
   "icons": [
     {
