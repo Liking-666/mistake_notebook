@@ -105,7 +105,7 @@
         }
       }
     </style>
-    <link rel="stylesheet" href="./styles.css?v=20260501" />
+    <link rel="stylesheet" href="./styles.css?v=20260501b" />
   </head>
   <body>
     <div class="app">
@@ -216,6 +216,20 @@
               正确思路
               <textarea id="correctInput" placeholder="正确解法、关键公式、注意事项"></textarea>
             </label>
+            <div class="photo-field">
+              <div class="photo-field-head">
+                <div>
+                  <strong>正确思路图片</strong>
+                  <span>可以上传解析截图、手写步骤或公式推导。</span>
+                </div>
+                <label class="upload-button">
+                  选择图片
+                  <input id="correctPhotoInput" type="file" accept="image/*" />
+                </label>
+              </div>
+              <div class="photo-preview empty" id="correctPhotoPreview">还没有选择图片</div>
+              <button class="text-button hidden" id="clearCorrectPhotoButton" type="button">移除图片</button>
+            </div>
 
             <div class="form-grid">
               <label>
@@ -350,6 +364,6 @@
       <button class="nav-item" data-view="chat">答疑</button>
     </nav>
 
-    <script src="./app.js?v=20260501"></script>
+    <script src="./app.js?v=20260501b"></script>
   </body>
 </html>

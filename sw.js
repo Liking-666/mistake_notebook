@@ -1,5 +1,5 @@
-const CACHE_NAME = 'kaoyan-mistake-notebook-v3';
-const ASSETS = ['./', './index.html', './styles.css?v=20260501', './app.js?v=20260501', './manifest.webmanifest', './icon.svg'];
+const CACHE_NAME = 'kaoyan-mistake-notebook-v4';
+const ASSETS = ['./', './index.html', './styles.css?v=20260501b', './app.js?v=20260501b', './manifest.webmanifest', './icon.svg'];
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

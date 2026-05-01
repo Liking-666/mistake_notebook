@@ -14,6 +14,7 @@ const state = {
   mistakes: loadMistakes(),
   currentView: 'dashboard',
   draftPhoto: '',
+  draftCorrectPhoto: '',
   activeAIMistakeId: '',
   chatMessages: loadChatMessages(),
   aiSettings: loadAISettings(),
@@ -41,6 +42,9 @@ const elements = {
   photoInput: $('#photoInput'),
   photoPreview: $('#photoPreview'),
   clearPhotoButton: $('#clearPhotoButton'),
+  correctPhotoInput: $('#correctPhotoInput'),
+  correctPhotoPreview: $('#correctPhotoPreview'),
+  clearCorrectPhotoButton: $('#clearCorrectPhotoButton'),
   chatForm: $('#chatForm'),
   chatInput: $('#chatInput'),
   chatMessages: $('#chatMessages'),
@@ -68,6 +72,8 @@ function init() {
   elements.seedButton.addEventListener('click', seedExamples);
   elements.photoInput.addEventListener('change', handlePhotoSelect);
   elements.clearPhotoButton.addEventListener('click', clearDraftPhoto);
+  elements.correctPhotoInput.addEventListener('change', handleCorrectPhotoSelect);
+  elements.clearCorrectPhotoButton.addEventListener('click', clearDraftCorrectPhoto);
   elements.chatForm.addEventListener('submit', handleChatSubmit);
   elements.clearChatButton.addEventListener('click', clearChat);
   elements.saveAISettingsButton.addEventListener('click', saveAISettings);
@@ -117,6 +123,7 @@ function handleSubmit(event) {
     questionImage: state.draftPhoto,
     wrongThinking: $('#wrongInput').value.trim() || '未记录',
     correctThinking: $('#correctInput').value.trim() || '未记录',
+    correctImage: state.draftCorrectPhoto,
     reviewCount: 0,
     mastered: status === 'mastered',
     createdAt: today(),
@@ -127,12 +134,27 @@ function handleSubmit(event) {
   persist();
   form.reset();
   clearDraftPhoto();
+  clearDraftCorrectPhoto();
   $('#subjectInput').value = mistake.subject;
   switchView('library');
   render();
 }
 
 function handlePhotoSelect(event) {
+  readImageFile(event, (dataUrl) => {
+    state.draftPhoto = dataUrl;
+    renderPhotoPreview();
+  });
+}
+
+function handleCorrectPhotoSelect(event) {
+  readImageFile(event, (dataUrl) => {
+    state.draftCorrectPhoto = dataUrl;
+    renderCorrectPhotoPreview();
+  });
+}
+
+function readImageFile(event, onLoad) {
   const file = event.target.files?.[0];
   if (!file) return;
   if (!file.type.startsWith('image/')) {
@@ -148,8 +170,7 @@ function handlePhotoSelect(event) {
 
   const reader = new FileReader();
   reader.onload = () => {
-    state.draftPhoto = String(reader.result);
-    renderPhotoPreview();
+    onLoad(String(reader.result));
   };
   reader.readAsDataURL(file);
 }
@@ -166,6 +187,20 @@ function renderPhotoPreview() {
   elements.photoPreview.innerHTML = state.draftPhoto
     ? `<img src="${state.draftPhoto}" alt="题目照片预览" />`
     : '还没有选择照片';
+}
+
+function clearDraftCorrectPhoto() {
+  state.draftCorrectPhoto = '';
+  elements.correctPhotoInput.value = '';
+  renderCorrectPhotoPreview();
+}
+
+function renderCorrectPhotoPreview() {
+  elements.correctPhotoPreview.classList.toggle('empty', !state.draftCorrectPhoto);
+  elements.clearCorrectPhotoButton.classList.toggle('hidden', !state.draftCorrectPhoto);
+  elements.correctPhotoPreview.innerHTML = state.draftCorrectPhoto
+    ? `<img src="${state.draftCorrectPhoto}" alt="正确思路图片预览" />`
+    : '还没有选择图片';
 }
 
 function render() {
@@ -235,17 +270,20 @@ function buildMessagesForAI(includeMistakes) {
     .slice(-8)
     .map((message) => ({ ...message }));
 
-  if (activeMistake?.questionImage && history.at(-1)?.role === 'user') {
+  if ((activeMistake?.questionImage || activeMistake?.correctImage) && history.at(-1)?.role === 'user') {
     const latest = history[history.length - 1];
+    const imageParts = [activeMistake.questionImage, activeMistake.correctImage]
+      .filter(Boolean)
+      .map((url) => ({
+        type: 'image_url',
+        image_url: { url },
+      }));
     latest.content = [
       {
         type: 'text',
-        text: `${latest.content}\n\n请结合当前错题照片和文字信息进行讲解。`,
+        text: `${latest.content}\n\n请结合当前错题的图片和文字信息进行讲解。`,
       },
-      {
-        type: 'image_url',
-        image_url: { url: activeMistake.questionImage },
-      },
+      ...imageParts,
     ];
   }
 
@@ -468,6 +506,7 @@ function renderMistakeCard(mistake, reviewMode) {
         ${mistake.questionImage ? `<img class="question-photo" src="${mistake.questionImage}" alt="题目照片" />` : ''}
         <p><b>我的错误：</b>${escapeHtml(mistake.wrongThinking)}</p>
         <p><b>正确思路：</b>${escapeHtml(mistake.correctThinking)}</p>
+        ${mistake.correctImage ? `<img class="question-photo" src="${mistake.correctImage}" alt="正确思路图片" />` : ''}
         <p><b>下次复习：</b>${mistake.nextReviewAt}</p>
       </div>
       <div class="mistake-actions">
@@ -535,6 +574,7 @@ function formatMistakeForAI(mistake) {
     `我的错误：${mistake.wrongThinking}`,
     `正确思路：${mistake.correctThinking}`,
     `是否有题目照片：${mistake.questionImage ? '有，已随本次提问附带图片。' : '无'}`,
+    `是否有正确思路图片：${mistake.correctImage ? '有，已随本次提问附带图片。' : '无'}`,
   ].join('；');
 }
 
@@ -605,6 +645,7 @@ function sampleMistakes() {
       questionImage: '',
       wrongThinking: '看到二阶子式后直接心算，忽略了负号。',
       correctThinking: '先写特征多项式，再逐步展开并检查符号。',
+      correctImage: '',
       reviewCount: 1,
       mastered: false,
       createdAt: addDays(-2),
@@ -620,6 +661,7 @@ function sampleMistakes() {
       questionImage: '',
       wrongThinking: '只盯着第二段关键词，没有看全文转折。',
       correctThinking: '主旨题先看首尾段和每段主题句，再排除局部细节。',
+      correctImage: '',
       reviewCount: 0,
       mastered: false,
       createdAt: addDays(-1),
@@ -635,6 +677,7 @@ function sampleMistakes() {
       questionImage: '',
       wrongThinking: '概念背得不牢，看到关键词就选。',
       correctThinking: '主要矛盾解决事物发展动力，矛盾主要方面决定事物性质。',
+      correctImage: '',
       reviewCount: 2,
       mastered: true,
       createdAt: addDays(-6),
@@ -650,6 +693,7 @@ function sampleMistakes() {
       questionImage: '',
       wrongThinking: '只记住结论，没有理解向下调整过程。',
       correctThinking: '按完全二叉树层级模拟，每次调整记录比较次数。',
+      correctImage: '',
       reviewCount: 0,
       mastered: false,
       createdAt: addDays(-3),
