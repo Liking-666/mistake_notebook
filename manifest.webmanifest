@@ -1,0 +1,16 @@
+{
+  "name": "考研智能错题本",
+  "short_name": "考研错题本",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f5f2ea",
+  "theme_color": "#245b4f",
+  "description": "移动端优先的考研错题记录、复习和统计工具。",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

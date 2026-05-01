@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#245b4f" />
+    <title>考研智能错题本</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar" aria-label="主导航">
+        <div class="brand">
+          <span class="brand-mark">错</span>
+          <div>
+            <strong>考研错题本</strong>
+            <small>Kaoyan Mistake Notebook</small>
+          </div>
+        </div>
+        <nav class="nav-list">
+          <button class="nav-item active" data-view="dashboard">首页</button>
+          <button class="nav-item" data-view="add">录入</button>
+          <button class="nav-item" data-view="review">复习</button>
+          <button class="nav-item" data-view="library">错题</button>
+          <button class="nav-item" data-view="stats">统计</button>
+          <button class="nav-item" data-view="chat">AI答疑</button>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">本地优先 · 手机和平板可用</p>
+            <h1 id="pageTitle">今日概览</h1>
+          </div>
+          <button class="ghost-button" id="seedButton">载入示例</button>
+        </header>
+
+        <section class="view active" id="dashboardView">
+          <div class="metric-grid" id="metricGrid"></div>
+          <div class="split-layout">
+            <section class="panel">
+              <div class="panel-title">
+                <h2>今日待复习</h2>
+                <button class="text-button" data-view-jump="review">去复习</button>
+              </div>
+              <div class="compact-list" id="todayPreview"></div>
+            </section>
+            <section class="panel">
+              <div class="panel-title">
+                <h2>薄弱提醒</h2>
+                <button class="text-button" data-view-jump="stats">看统计</button>
+              </div>
+              <div class="insight-list" id="weaknessPreview"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="addView">
+          <form class="panel form-panel" id="mistakeForm">
+            <div class="form-grid">
+              <label>
+                科目
+                <select id="subjectInput" required>
+                  <option>高等数学</option>
+                  <option>线性代数</option>
+                  <option>英语</option>
+                  <option>政治</option>
+                  <option>专业课</option>
+                </select>
+              </label>
+              <label>
+                错因
+                <select id="reasonInput" required>
+                  <option>概念不清</option>
+                  <option>计算失误</option>
+                  <option>审题错误</option>
+                  <option>方法不会</option>
+                  <option>记忆遗漏</option>
+                  <option>时间不足</option>
+                </select>
+              </label>
+              <label>
+                知识点
+                <input id="knowledgeInput" required placeholder="例如：线代-特征值" />
+              </label>
+              <label>
+                题目来源
+                <input id="sourceInput" placeholder="例如：660题 第3章 / 2018真题" />
+              </label>
+            </div>
+
+            <label>
+              题目描述
+              <textarea id="questionInput" placeholder="把题干、页码或截图说明写在这里；如果上传照片，这里可以只写简短备注"></textarea>
+            </label>
+            <div class="photo-field">
+              <div class="photo-field-head">
+                <div>
+                  <strong>题目照片</strong>
+                  <span>支持从手机/平板相册选择，图片会保存在本机浏览器中。</span>
+                </div>
+                <label class="upload-button">
+                  选择照片
+                  <input id="photoInput" type="file" accept="image/*" />
+                </label>
+              </div>
+              <div class="photo-preview empty" id="photoPreview">还没有选择照片</div>
+              <button class="text-button hidden" id="clearPhotoButton" type="button">移除照片</button>
+            </div>
+            <label>
+              我的错误
+              <textarea id="wrongInput" placeholder="当时为什么错？哪里卡住？"></textarea>
+            </label>
+            <label>
+              正确思路
+              <textarea id="correctInput" placeholder="正确解法、关键公式、注意事项"></textarea>
+            </label>
+
+            <div class="form-grid">
+              <label>
+                首次复习间隔
+                <select id="intervalInput">
+                  <option value="1">明天</option>
+                  <option value="3">3 天后</option>
+                  <option value="7">7 天后</option>
+                  <option value="14">14 天后</option>
+                </select>
+              </label>
+              <label>
+                掌握状态
+                <select id="statusInput">
+                  <option value="learning">仍需复习</option>
+                  <option value="mastered">已掌握</option>
+                </select>
+              </label>
+            </div>
+
+            <button class="primary-button" type="submit">保存错题</button>
+          </form>
+        </section>
+
+        <section class="view" id="reviewView">
+          <div class="panel">
+            <div class="panel-title">
+              <h2>今日复习清单</h2>
+              <span id="reviewCountBadge" class="badge"></span>
+            </div>
+            <div class="card-list" id="reviewList"></div>
+          </div>
+        </section>
+
+        <section class="view" id="libraryView">
+          <div class="panel">
+            <div class="filter-bar">
+              <select id="subjectFilter">
+                <option value="all">全部科目</option>
+                <option>高等数学</option>
+                <option>线性代数</option>
+                <option>英语</option>
+                <option>政治</option>
+                <option>专业课</option>
+              </select>
+              <select id="reasonFilter">
+                <option value="all">全部错因</option>
+                <option>概念不清</option>
+                <option>计算失误</option>
+                <option>审题错误</option>
+                <option>方法不会</option>
+                <option>记忆遗漏</option>
+                <option>时间不足</option>
+              </select>
+              <input id="searchInput" placeholder="搜索知识点 / 来源 / 题目" />
+            </div>
+            <div class="card-list" id="mistakeList"></div>
+          </div>
+        </section>
+
+        <section class="view" id="statsView">
+          <div class="split-layout">
+            <section class="panel">
+              <h2>高频错因</h2>
+              <div class="rank-list" id="reasonStats"></div>
+            </section>
+            <section class="panel">
+              <h2>高频知识点</h2>
+              <div class="rank-list" id="knowledgeStats"></div>
+            </section>
+          </div>
+          <section class="panel">
+            <h2>复习清单生成逻辑</h2>
+            <div class="agent-flow">
+              <div><strong>Input Agent</strong><span>结构化错题信息</span></div>
+              <div><strong>Weakness Agent</strong><span>统计错因和知识点</span></div>
+              <div><strong>Scheduler Agent</strong><span>根据掌握情况安排复习</span></div>
+            </div>
+          </section>
+        </section>
+
+        <section class="view" id="chatView">
+          <div class="split-layout chat-layout">
+            <section class="panel chat-panel">
+              <div class="panel-title">
+                <h2>AI 学习答疑</h2>
+                <button class="text-button" id="clearChatButton">清空对话</button>
+              </div>
+              <div class="ai-context hidden" id="aiContextBox"></div>
+              <div class="chat-messages" id="chatMessages"></div>
+              <form class="chat-form" id="chatForm">
+                <textarea id="chatInput" placeholder="例如：帮我解释线性代数中特征值为什么这么求？"></textarea>
+                <button class="primary-button" type="submit">发送</button>
+              </form>
+            </section>
+
+            <section class="panel settings-panel">
+              <h2>模型设置</h2>
+              <p class="setting-note">
+                适合个人本地使用。API Key 会保存在当前浏览器本地，不建议把填好 Key 的页面部署给别人。
+              </p>
+              <label>
+                API Base URL
+                <input id="apiBaseInput" placeholder="https://api.openai.com/v1/chat/completions" />
+              </label>
+              <label>
+                API Key
+                <input id="apiKeyInput" type="password" placeholder="sk-..." />
+              </label>
+              <label>
+                Model
+                <input id="modelInput" placeholder="gpt-4o-mini / deepseek-chat / qwen-plus" />
+              </label>
+              <label class="checkbox-row">
+                <input id="includeMistakesInput" type="checkbox" />
+                <span>提问时附带错题本薄弱点上下文</span>
+              </label>
+              <button class="primary-button" id="saveAISettingsButton" type="button">保存设置</button>
+              <button class="ghost-button" id="testAIButton" type="button">测试连接</button>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <nav class="bottom-nav" aria-label="底部导航">
+      <button class="nav-item active" data-view="dashboard">首页</button>
+      <button class="nav-item" data-view="add">录入</button>
+      <button class="nav-item" data-view="review">复习</button>
+      <button class="nav-item" data-view="library">错题</button>
+      <button class="nav-item" data-view="stats">统计</button>
+      <button class="nav-item" data-view="chat">答疑</button>
+    </nav>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
